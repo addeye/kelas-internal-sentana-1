@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class BlogController extends Controller
 {
@@ -14,7 +15,9 @@ class BlogController extends Controller
      */
     public function index()
     {
-        //
+        $data = Blog::all();
+
+        return view('blog.list',['data' => $data]);
     }
 
     /**
@@ -24,7 +27,7 @@ class BlogController extends Controller
      */
     public function create()
     {
-        //
+        return view('blog.add');
     }
 
     /**
@@ -35,7 +38,10 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules = [];
+        $messages = [];
+
+        $validator = Validator::
     }
 
     /**

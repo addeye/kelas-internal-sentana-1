@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BlogController;
 use App\Models\Blog;
 use Illuminate\Support\Facades\Route;
 
@@ -23,9 +24,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth'])->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('blog',function(){
-        return view('blog',['blog' => Blog::all()]);
-    });
+    Route::resource('blog', BlogController::class);
 });
 
 require __DIR__.'/auth.php';
