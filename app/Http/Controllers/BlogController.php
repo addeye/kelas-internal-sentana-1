@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
 class BlogController extends Controller
@@ -15,9 +16,10 @@ class BlogController extends Controller
      */
     public function index()
     {
-        $data = Blog::all();
 
-        return view('blog.list',['data' => $data]);
+        return view('blog.list', [
+            'data' => Blog::all()
+        ]);
     }
 
     /**
@@ -38,10 +40,34 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-        $rules = [];
-        $messages = [];
 
-        $validator = Validator::
+        // return $request->all();
+        $rules =[
+            'title' => 'required|unique:blogs|max:255',
+            'content' => 'required',
+        ];
+        $messages = [
+            'title.required' => 'Judul wajib diisi',
+            'title.unique' => 'Judul sudah digunakan silahkan ketik yang lain',
+            'title.max' => 'Judul terlalu panjang max 255 karakter',
+            'content.required' => 'Konten wajib diisi',
+        ];
+
+        $validated = $request->validate($rules,$messages);
+
+        $datarow = $request->all();
+
+        $datarow['slug'] = Str::of($request->title)->slug('-');
+
+
+        Blog::create($datarow);
+
+       /*  $blog = new Blog();
+        $blog->title = $request->title;
+        $blog->content = $request->content;
+        $blog->save(); */
+
+        return redirect('blog');
     }
 
     /**
@@ -52,7 +78,9 @@ class BlogController extends Controller
      */
     public function show(Blog $blog)
     {
-        //
+        return view('blog.detail',[
+            'data' => $blog
+        ]);
     }
 
     /**
@@ -63,7 +91,9 @@ class BlogController extends Controller
      */
     public function edit(Blog $blog)
     {
-        //
+        return view('blog.edit',[
+            'data' => $blog
+        ]);
     }
 
     /**
