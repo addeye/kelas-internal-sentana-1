@@ -27,7 +27,8 @@
     </div>
     <div class="card-body">
         <h5 class="card-title">Masukkan data</h5>
-        <form method="POST" class="" action="/blog" novalidate>
+        <form method="POST" class="" action="/blog/{{$data->id}}" enctype="multipart/form-data" novalidate>
+            @method('PUT')
             @csrf
             <div class="mb-3">
               <label for="exampleInputEmail1" class="form-label">Judul</label>
@@ -39,6 +40,18 @@
                 @enderror
             </div>
             <div class="mb-3">
+                <img width="200" src="{{asset($data->image)}}" alt="">
+            </div>
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Gambar</label>
+                <input type="file" accept="image/*" name=image value="{{old('image')}}" class="form-control @error('image') is-invalid @enderror" id="image" aria-describedby="imageHelp">
+                  @error('image')
+                  <div class="invalid-feedback">
+                      {{ $message }}
+                  </div>
+                  @enderror
+            </div>
+            <div class="mb-3">
               <label for="exampleInputPassword1" class="form-label">Konten</label>
               <input type="hidden" name="content" class="form-control @error('content') is-invalid @enderror"/>
               @error('content')
@@ -46,7 +59,7 @@
                     {{ $message }}
                 </div>
                 @enderror
-              <div class="@error('content') is-invalid @enderror" id="editor">{{old('content')}}</div>
+              <div class="@error('content') is-invalid @enderror" id="editor">{!! $data->content !!}</div>
             </div>
             <button type="submit" class="btn btn-primary">Simpan</button>
           </form>

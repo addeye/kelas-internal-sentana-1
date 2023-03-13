@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class BlogController extends Controller
 {
@@ -45,20 +47,28 @@ class BlogController extends Controller
         $rules =[
             'title' => 'required|unique:blogs|max:255',
             'content' => 'required',
+            'image' => 'image'
         ];
         $messages = [
             'title.required' => 'Judul wajib diisi',
             'title.unique' => 'Judul sudah digunakan silahkan ketik yang lain',
             'title.max' => 'Judul terlalu panjang max 255 karakter',
             'content.required' => 'Konten wajib diisi',
+            'image.image' => 'Format nya bukan gambar'
         ];
 
         $validated = $request->validate($rules,$messages);
 
         $datarow = $request->all();
 
-        $datarow['slug'] = Str::of($request->title)->slug('-');
+        //Proses upload image
+        $image_path = $request->image->store('images','public');
+        //Proses simpan lokasi file di tabel database
+        $datarow['image'] = $image_path;
 
+        // return $datarow;
+
+        $datarow['slug'] = Str::of($request->title)->slug('-');
 
         Blog::create($datarow);
 
@@ -105,7 +115,47 @@ class BlogController extends Controller
      */
     public function update(Request $request, Blog $blog)
     {
-        //
+        // return $request->all();
+        $rules =[
+            'title' => 'required|unique:blogs,title,'.$blog->id.'|max:255',
+            // 'title' => [
+            //     'required',
+            //     Rule::unique('blogs')->ignore($blog->id),
+            //     'Max:255'
+            // ],
+            'content' => 'required',
+        ];
+        $messages = [
+            'title.required' => 'Judul wajib diisi',
+            'title.unique' => 'Judul sudah digunakan silahkan ketik yang lain',
+            'title.max' => 'Judul terlalu panjang max 255 karakter',
+            'content.required' => 'Konten wajib diisi',
+        ];
+
+       $request->validate($rules,$messages);
+
+        $datarow = $request->all();
+        if($request->image){
+
+            //Menyimpan lokasi gambar lama
+            $oldimage = $blog->image;
+
+            //Proses upload image
+            $image_path = $request->image->store('images','public');
+
+            //Proses simpan lokasi file di tabel database
+            $datarow['image'] = $image_path;
+
+            //Proses hapus gambar lama
+            Storage::delete($oldimage);
+        }
+
+        $datarow['slug'] = Str::of($request->title)->slug('-');
+
+
+        $blog->update($datarow);
+
+        return redirect('blog');
     }
 
     /**
@@ -116,6 +166,8 @@ class BlogController extends Controller
      */
     public function destroy(Blog $blog)
     {
-        //
+        // return "Ini method hapus";
+        $blog->delete();
+        return redirect('blog');
     }
 }

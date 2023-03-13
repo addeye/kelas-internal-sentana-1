@@ -26,6 +26,8 @@
             <span class="badge bg-secondary" style="padding-top: 6px;">{{$data->status}}</span>
         </div>
         <hr>
+        <img width="200" src="{{asset($data->image)}}" alt="">
+        <hr>
         {!! $data->content !!}
     </div>
   </div>

@@ -1,12 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="#">Home</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Library</li>
-    </ol>
-</nav>
+<div class="mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Library</li>
+        </ol>
+    </nav>
+</div>
 <div class="card">
     <div class="card-header">
         <div class="d-flex align-content-center justify-content-between">
@@ -36,7 +38,12 @@
                     <td>
                         <a href="/blog/{{$item->id}}"><span data-feather="eye"></span></a>
                         <a href="/blog/{{$item->id}}/edit"><span data-feather="edit"></span></a>
-                        <a href="/blog"><span data-feather="trash"></span></a>
+
+                        <a href="javascript:" onclick="deleteData({{$item->id}})"><span data-feather="trash"></span></a>
+                        <form class="d-none" id="formdelete-{{$item->id}}" action="/blog/{{$item->id}}" method="POST">
+                            @method('DELETE')
+                            @csrf
+                        </form>
                     </td>
                   </tr>
               @endforeach
@@ -44,4 +51,15 @@
         </table>
     </div>
   </div>
+@endsection
+
+@section('js')
+<script>
+    function deleteData(id){
+        if(confirm("Apakah anda yakin?")){
+            document.getElementById('formdelete-'+id).submit()
+        }
+        return false;
+    }
+</script>
 @endsection

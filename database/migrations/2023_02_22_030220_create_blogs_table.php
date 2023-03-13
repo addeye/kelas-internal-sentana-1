@@ -19,6 +19,7 @@ class CreateBlogsTable extends Migration
             $table->string('title');
             $table->text('content');
             $table->enum('status',['publish','draft'])->default('draft');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
