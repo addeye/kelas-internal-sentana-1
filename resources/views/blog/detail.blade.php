@@ -25,6 +25,9 @@
             <h5 class="card-title mb-0">{{$data->title}}</h5>
             <span class="badge bg-secondary" style="padding-top: 6px;">{{$data->status}}</span>
         </div>
+        @foreach ($data->category as $item)
+        <span class="badge text-bg-primary">{{$item->name}}</span>
+        @endforeach
         <hr>
         <img width="200" src="{{asset($data->image)}}" alt="">
         <hr>

@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
+use App\Models\BlogCategory;
+use App\Models\Category;
+use Database\Factories\BlogFactory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
@@ -31,7 +35,9 @@ class BlogController extends Controller
      */
     public function create()
     {
-        return view('blog.add');
+        return view('blog.add',[
+            'category' => Category::all()
+        ]);
     }
 
     /**
@@ -70,7 +76,16 @@ class BlogController extends Controller
 
         $datarow['slug'] = Str::of($request->title)->slug('-');
 
-        Blog::create($datarow);
+        $blog = Blog::create($datarow);
+        $blog_id = $blog->id;
+
+        foreach($request->category_id as $item){
+            $datarow = [
+                'blog_id' => $blog_id,
+                'category_id' => $item
+            ];
+            BlogCategory::create($datarow);
+        }
 
        /*  $blog = new Blog();
         $blog->title = $request->title;
@@ -88,8 +103,21 @@ class BlogController extends Controller
      */
     public function show(Blog $blog)
     {
+        // return $blog;
+        // return $blog->load('blogCategory.category');
+        $table = DB::table('blogs')
+                        ->where('id',$blog->id)
+                        ->first();
+
+        $category = DB::table('blog_category')
+                ->where('blog_id',$blog->id)
+                ->join('category', 'category.id', '=', 'blog_category.category_id')
+                ->select('category.name as name')
+                ->get();
+        $table->category = $category;
+
         return view('blog.detail',[
-            'data' => $blog
+            'data' => $table
         ]);
     }
 

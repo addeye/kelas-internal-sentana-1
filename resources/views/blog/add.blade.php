@@ -57,6 +57,20 @@
                 @enderror
               <div class="@error('content') is-invalid @enderror" id="editor">{{old('content')}}</div>
             </div>
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Kategori</label>
+                <select name="category_id[]" multiple class="form-control" id="category_id">
+                <option value="">Pilih</option>
+                @foreach ($category as $item)
+                <option value="{{$item->id}}">{{$item->name}}</option>
+                @endforeach
+                </select>
+                  @error('category_id')
+                  <div class="invalid-feedback">
+                      {{ $message }}
+                  </div>
+                  @enderror
+              </div>
             <button type="submit" class="btn btn-primary">Simpan</button>
           </form>
     </div>
