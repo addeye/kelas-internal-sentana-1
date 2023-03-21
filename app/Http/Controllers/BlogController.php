@@ -22,9 +22,42 @@ class BlogController extends Controller
      */
     public function index()
     {
+        $blog = Blog::query();
+        $sort = request('sort_val') ?? 'DESC';
+
+        /* if(request('sort_val')){
+            return request('sort_val');
+        }else{
+            return 'DESC';
+        }  */
+
+        if(request('sort_name')=='judul'){
+            $sort = $sort == 'DESC' ? 'ASC' : 'DESC';
+            /*
+            $sort = '';
+            if($sort=='DESC'){
+                $sort = 'ASC';
+            }else{
+                $sort = 'DESC';
+            }
+             */
+            $blog->orderBy('title', request('sort_val'));
+        }
+
+        if(request('sort_name')=='status'){
+            $sort = $sort == 'DESC' ? 'ASC' : 'DESC';
+            $blog->orderBy('status', request('sort_val'));
+        }
+
+        if(request('cari')){
+            $blog->where('title','LIKE','%'.request('cari').'%');
+        }
+
+        $blog = $blog->orderBy('created_at', $sort)->paginate()->withQueryString();
 
         return view('blog.list', [
-            'data' => Blog::all()
+            'data' => $blog->withPath('blog'),
+            'sort' => $sort
         ]);
     }
 
@@ -35,7 +68,7 @@ class BlogController extends Controller
      */
     public function create()
     {
-        return view('blog.add',[
+        return view('blog.add', [
             'category' => Category::all()
         ]);
     }
@@ -48,7 +81,6 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-
         // return $request->all();
         $rules =[
             'title' => 'required|unique:blogs|max:255',
@@ -63,12 +95,12 @@ class BlogController extends Controller
             'image.image' => 'Format nya bukan gambar'
         ];
 
-        $validated = $request->validate($rules,$messages);
+        $validated = $request->validate($rules, $messages);
 
         $datarow = $request->all();
 
         //Proses upload image
-        $image_path = $request->image->store('images','public');
+        $image_path = $request->image->store('images', 'public');
         //Proses simpan lokasi file di tabel database
         $datarow['image'] = $image_path;
 
@@ -79,7 +111,7 @@ class BlogController extends Controller
         $blog = Blog::create($datarow);
         $blog_id = $blog->id;
 
-        foreach($request->category_id as $item){
+        foreach ($request->category_id as $item) {
             $datarow = [
                 'blog_id' => $blog_id,
                 'category_id' => $item
@@ -87,10 +119,10 @@ class BlogController extends Controller
             BlogCategory::create($datarow);
         }
 
-       /*  $blog = new Blog();
-        $blog->title = $request->title;
-        $blog->content = $request->content;
-        $blog->save(); */
+        /*  $blog = new Blog();
+         $blog->title = $request->title;
+         $blog->content = $request->content;
+         $blog->save(); */
 
         return redirect('blog');
     }
@@ -106,17 +138,17 @@ class BlogController extends Controller
         // return $blog;
         // return $blog->load('blogCategory.category');
         $table = DB::table('blogs')
-                        ->where('id',$blog->id)
+                        ->where('id', $blog->id)
                         ->first();
 
         $category = DB::table('blog_category')
-                ->where('blog_id',$blog->id)
+                ->where('blog_id', $blog->id)
                 ->join('category', 'category.id', '=', 'blog_category.category_id')
                 ->select('category.name as name')
                 ->get();
         $table->category = $category;
 
-        return view('blog.detail',[
+        return view('blog.detail', [
             'data' => $table
         ]);
     }
@@ -129,7 +161,7 @@ class BlogController extends Controller
      */
     public function edit(Blog $blog)
     {
-        return view('blog.edit',[
+        return view('blog.edit', [
             'data' => $blog
         ]);
     }
@@ -160,16 +192,15 @@ class BlogController extends Controller
             'content.required' => 'Konten wajib diisi',
         ];
 
-       $request->validate($rules,$messages);
+        $request->validate($rules, $messages);
 
         $datarow = $request->all();
-        if($request->image){
-
+        if ($request->image) {
             //Menyimpan lokasi gambar lama
             $oldimage = $blog->image;
 
             //Proses upload image
-            $image_path = $request->image->store('images','public');
+            $image_path = $request->image->store('images', 'public');
 
             //Proses simpan lokasi file di tabel database
             $datarow['image'] = $image_path;
