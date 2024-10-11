@@ -146,3 +146,7 @@
     </table>
 </div>
 @endsection
+
+
+@section("js")
+@endsection

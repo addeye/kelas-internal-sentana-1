@@ -33,14 +33,6 @@ class BlogController extends Controller
 
         if(request('sort_name')=='judul'){
             $sort = $sort == 'DESC' ? 'ASC' : 'DESC';
-            /*
-            $sort = '';
-            if($sort=='DESC'){
-                $sort = 'ASC';
-            }else{
-                $sort = 'DESC';
-            }
-             */
             $blog->orderBy('title', request('sort_val'));
         }
 
@@ -81,6 +73,8 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
+        // return $request->all();
         // return $request->all();
         $rules =[
             'title' => 'required|unique:blogs|max:255',
@@ -95,7 +89,7 @@ class BlogController extends Controller
             'image.image' => 'Format nya bukan gambar'
         ];
 
-        $validated = $request->validate($rules, $messages);
+        $request->validate($rules, $messages);
 
         $datarow = $request->all();
 
